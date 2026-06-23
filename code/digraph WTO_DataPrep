@@ -1,0 +1,61 @@
+digraph WTO_DataPrep {
+
+  // rankdir=LR;  // left-to-right flow
+  rankdir=TB; // top-to-bottom
+
+  fontname="Helvetica"; fontsize=11;
+  nodesep=0.6; ranksep=0.9;
+
+  node [shape=box, style=filled, fillcolor=white, color=gray50, fontname="Helvetica"];
+
+  // --- Data Sources ---
+  subgraph cluster_sources {
+    label = "Data Sources";
+    color=lightgrey; style=rounded;
+    n1 [label="WTO Committee Reports\n(1995–2022)"];
+    n2 [label="World Bank Metadata\n(Income Groups, Regions)"];
+  }
+
+  // --- Preprocessing ---
+  subgraph cluster_preproc {
+    label = "Preprocessing";
+    color=lightgrey; style=rounded;
+    p1 [label="Text Parsing &\nSpeaker Extraction"];
+    p2 [label="Segmentation by\nParagraph / Turn"];
+    p3 [label="Country–Year Linking"];
+  }
+
+  // --- Feature Extraction ---
+  subgraph cluster_features {
+    label = "Feature Extraction";
+    color=lightgrey; style=rounded;
+    f1 [label="Proposal Mentions\n(e.g., W/192, W/208)"];
+    f2 [label="\"On Behalf Of\"\nPattern Detection"];
+    f3 [label="Activity Metrics\n(Speaker Counts, Shares)"];
+  }
+
+  // --- Aggregation & Analysis ---
+  subgraph cluster_analysis {
+    label = "Aggregation & Analysis";
+    color=lightgrey; style=rounded;
+    a1 [label="Country–Year Panel"];
+    a2 [label="Income-Level Dynamics\n(LMC ↔ UMC Transitions)"];
+    a3 [label="Geospatial Visualization\n& Time-Series Analysis"];
+  }
+
+  // --- Flow Edges ---
+  start [shape=Mdiamond, label="Raw Inputs"];
+  end [shape=Msquare, label="Analytic Outputs"];
+
+  start -> n1;
+  start -> n2;
+  n1 -> p1;
+  n2 -> p3;
+  p1 -> p2 -> p3;
+  p3 -> f1;
+  p3 -> f2;
+  f1 -> f3;
+  f2 -> f3;
+  f3 -> a1 -> a2 -> a3;
+  a3 -> end;
+}

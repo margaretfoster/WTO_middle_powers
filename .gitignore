@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Third-party shapefiles (download once; see data/shapefiles/README.md)
+data/shapefiles/*.zip
+data/shapefiles/*.shp
+data/shapefiles/*.dbf
+data/shapefiles/*.shx
+data/shapefiles/*.prj
+data/shapefiles/*.cpg
+
+# OS
+.DS_Store
+.Rhistory
+.RData
+.vscode
+*.*~

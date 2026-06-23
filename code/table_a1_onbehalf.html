@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            margin: 40px;
+        }
+        .table-title {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        th {
+            border-top: 2px solid black;
+            border-bottom: 1px solid black;
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
+        }
+        td {
+            padding: 8px;
+            text-align: center;
+        }
+        .var-col {
+            text-align: left;
+            padding-left: 20px;
+        }
+        .bottom-border {
+            border-bottom: 2px solid black;
+        }
+        .model-stats {
+            margin-top: 20px;
+            font-size: 12px;
+        }
+        .notes {
+            margin-top: 20px;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+        .notes-title {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="table-title">Table A1: Negative Binomial Model - 'On Behalf Of' Speaker-Turns by Income Level</div>
+
+<table>
+    <thead>
+        <tr>
+            <th style="text-align: left;">Variable</th>
+            <th>Coefficient</th>
+            <th>Std. Error</th>
+            <th>IRR</th>
+            <th>95% CI</th>
+            <th>z</th>
+            <th>p-value</th>
+            <th>Sig.</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="var-col">Intercept (Upper middle income)</td>
+            <td>0.960</td>
+            <td>0.180</td>
+            <td>2.61</td>
+            <td>(1.84, 3.71)</td>
+            <td>5.34</td>
+            <td>0.000</td>
+            <td>***</td>
+        </tr>
+        <tr>
+            <td class="var-col">High income</td>
+            <td>-0.104</td>
+            <td>0.158</td>
+            <td>0.90</td>
+            <td>(0.66, 1.23)</td>
+            <td>-0.66</td>
+            <td>0.511</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td class="var-col">Low income</td>
+            <td>0.846</td>
+            <td>0.233</td>
+            <td>2.33</td>
+            <td>(1.48, 3.68)</td>
+            <td>3.63</td>
+            <td>0.000</td>
+            <td>***</td>
+        </tr>
+        <tr class="bottom-border">
+            <td class="var-col">Lower middle income</td>
+            <td>0.183</td>
+            <td>0.194</td>
+            <td>1.20</td>
+            <td>(0.82, 1.76)</td>
+            <td>0.94</td>
+            <td>0.346</td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="model-stats">
+    <div style="font-weight: bold; margin-bottom: 5px;">Model Statistics:</div>
+    <div>N observations: 80</div>
+    <div>N clusters (years): 28</div>
+    <div>Log-Likelihood: -189.75</div>
+    <div>AIC: 387.51</div>
+    <div>BIC: -305.97</div>
+    <div>Dispersion: 1.000</div>
+</div>
+
+<div class="notes">
+    <div class="notes-title">Notes:</div>
+    <div>Reference category: Upper middle income states. Standard errors clustered by year. IRR = Incidence Rate Ratio. † p<0.10, * p<0.05, ** p<0.01, *** p<0.001</div>
+</div>
+
+</body>
+</html>
