@@ -107,6 +107,50 @@ def get_prev_paragraph(df: pd.DataFrame, row: pd.Series) -> tuple[str | None, st
     return str(spk), str(prev['paratext'])
 
 
+def make_split_pid(orig_pid: int, df: pd.DataFrame) -> int:
+    """orig pid + MMDD of today; bump by 1 if collision."""
+    today = pd.Timestamp.today().strftime('%m%d')
+    new_pid = int(f"{int(orig_pid)}{today}")
+    existing = set(df['pid'].astype(int))
+    while new_pid in existing:
+        new_pid += 1
+    return new_pid
+
+
+def make_split_paranum(doc, paranum: float, df: pd.DataFrame) -> float:
+    """Midpoint between paranum and the next paranum in the same doc."""
+    same_doc = df[df['doc'] == doc].sort_values('paranum')
+    later = same_doc[same_doc['paranum'] > paranum]
+    nxt = later['paranum'].iloc[0] if not later.empty else paranum + 1
+    return (paranum + nxt) / 2
+
+
+def split_row(df: pd.DataFrame, row_idx, text_a: str, speaker_a: str,
+              text_b: str, speaker_b: str) -> pd.DataFrame:
+    """Replace row_idx with two new rows, preserving ordering via decimal paranum."""
+    orig = df.loc[row_idx]
+    pn_a = make_split_paranum(orig['doc'], orig['paranum'], df)
+    new_a = orig.copy()
+    new_a['paranum'] = pn_a
+    new_a['pid'] = make_split_pid(orig['pid'], df)
+    new_a['paratext'] = text_a.strip()
+    new_a['manual_speaker'] = speaker_a.strip()
+    new_a['review_status'] = 'reviewed'
+
+    df_tmp = pd.concat([df, new_a.to_frame().T], ignore_index=False)
+    pn_b = make_split_paranum(orig['doc'], pn_a, df_tmp)
+    new_b = orig.copy()
+    new_b['paranum'] = pn_b
+    new_b['pid'] = make_split_pid(orig['pid'], df_tmp)
+    new_b['paratext'] = text_b.strip()
+    new_b['manual_speaker'] = speaker_b.strip()
+    new_b['review_status'] = 'reviewed'
+
+    df = df.drop(index=row_idx)
+    df = pd.concat([df, new_a.to_frame().T, new_b.to_frame().T], ignore_index=True)
+    return df
+
+
 # ── Main app ───────────────────────────────────────────────────────────────────
 def main() -> None:
     st.set_page_config(page_title='WTO CTD Speaker Review', layout='wide')
@@ -146,7 +190,7 @@ def main() -> None:
     total = len(flagged)
 
     if total == 0:
-        st.success('✅ All rows in the selected categories have been reviewed.')
+        st.success('All rows in the selected categories have been reviewed.')
         return
 
     # Clamp position
@@ -177,7 +221,7 @@ def main() -> None:
 
     notes = str(row.get('flag_notes', '') or '')
     if notes.strip():
-        st.caption(f'ℹ️ {notes}')
+        st.caption(f'{notes}')
 
     st.divider()
 
@@ -257,6 +301,26 @@ def main() -> None:
     with col_back:
         if st.button('← Back', use_container_width=True):
             st.session_state.pos = max(pos - 1, 0)
+            st.rerun()
+
+    # ── Split paragraph (two speakers merged into one row) ──────────────────
+    with st.expander('This paragraph contains two speakers (split it)'):
+        full_text = str(row['paratext'])
+        midpoint = len(full_text) // 2
+        text_a = st.text_area('First speaker — text', value=full_text[:midpoint], key=f'split_a_{row_idx}')
+        speaker_a = st.text_input('First speaker — name', value=proposed, key=f'spk_a_{row_idx}')
+        text_b = st.text_area('Second speaker — text', value=full_text[midpoint:], key=f'split_b_{row_idx}')
+        speaker_b = st.text_input('Second speaker — name', value='', key=f'spk_b_{row_idx}')
+
+        combined = (text_a + text_b).replace(' ', '').replace('\n', '')
+        original = full_text.replace(' ', '').replace('\n', '')
+        if combined != original:
+            st.warning("⚠ Combined text doesn't match the original paragraph — check for dropped/duplicated text before saving.")
+
+        if st.button('Save split', use_container_width=True):
+            st.session_state.df = split_row(df, row_idx, text_a, speaker_a, text_b, speaker_b)
+            save_df(st.session_state.df)
+            st.session_state.pos = min(pos, total - 1)
             st.rerun()
 
 
